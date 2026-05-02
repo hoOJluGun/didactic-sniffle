@@ -3670,6 +3670,894 @@ ollama pull nomic-embed-text  # для embeddings
 ---
 
 
-*← [Часть I — Анализ](01-ANALYSIS.md) | [Часть II — RFC](02-RFC.md)*
+*← [Часть I — Анализ](01-ANALYSIS.md) | [Часть II — RFC](02-RFC.md) | [Часть VII — Будущее →]*
 
+
+---
+
+
+# Часть VII. План на Очевидное Будущее — Sovereign Intelligence 2027
+
+
+> *"Будущее уже здесь — оно просто неравномерно распределено."* — Уильям Гибсон
+
+
+## Текущее Состояние (Baseline, Май 2026)
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   ТЕКУЩИЙ АКТИВ                                   │
+│                                                                   │
+│  ✅ Ollama — патчнут, работает без ограничений                    │
+│  ✅ Continue.dev — 1200 моделей подключено                        │
+│  ✅ Своя IDE — Electron + LSP + AI интеграция                     │
+│  ✅ 4akki_blac — 200+ бесплатных моделей, Go gateway              │
+│  ✅ xI — C2 система с TML/CPT/PEP                                │
+│  ✅ sovereign-coder — автономный код-агент                        │
+│  ✅ waoowaoo — AI Film Studio (109K LOC)                          │
+│  ✅ RE Workspace — Blackbox, OpenRouter, Perplexity вскрыты       │
+│  ✅ Ghost Bridge v12 — мост ОС ↔ AI                              │
+│  ✅ Китайские API — Scalar доки, изи доступ                       │
+│                                                                   │
+│  Итого: Полностью суверенная AI-инфраструктура                    │
+│         с 1200+ моделями и zero зависимостью от подписок          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+---
+
+
+## 7.1. Ближайшее Будущее: Тактика (0-3 месяца)
+
+
+### 7.1.1. Китайская Экспансия: Интеграция Паблик API
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│           КИТАЙСКИЙ КЛАСТЕР — Стратегия Интеграции               │
+│                                                                   │
+│  Tier 1: Уже Доступны (Scalar API, без auth барьеров)             │
+│  ─────────────────────────────────────────────────                │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │ DeepSeek │ │   Kimi   │ │ MiniMax  │ │  Yi/01   │           │
+│  │ R1, V3   │ │ Moonshot │ │ abab7    │ │ Yi-Large │           │
+│  │ coder-v3 │ │ 128K ctx │ │ M2.1     │ │ Yi-VL    │           │
+│  │          │ │          │ │          │ │          │           │
+│  │ FREE 🟢  │ │ FREE 🟢  │ │ FREE 🟢  │ │ FREE 🟢  │           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│                                                                   │
+│  Tier 2: Free Tier щедрый                                        │
+│  ─────────────────────────                                       │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │
+│  │  Baidu   │ │ Alibaba  │ │  iFlytek │ │ Zhipu    │           │
+│  │ ERNIE 4  │ │ Qwen-Max │ │ Spark 4  │ │ GLM-4    │           │
+│  │          │ │ Qwen-VL  │ │          │ │ GLM-4V   │           │
+│  │ 5M tok 🟡│ │ 2M tok 🟡│ │ 3M tok 🟡│ │ 5M tok 🟡│           │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │
+│                                                                   │
+│  Tier 3: Требуют RE                                              │
+│  ──────────────────                                              │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                        │
+│  │ByteDance │ │  Baichuan│ │ SenseNova│                         │
+│  │ Doubao   │ │  2-Turbo │ │  5.5     │                        │
+│  │ Pro-32K  │ │          │ │          │                        │
+│  │ AUTH 🔴  │ │ AUTH 🔴  │ │ AUTH 🔴  │                        │
+│  └──────────┘ └──────────┘ └──────────┘                        │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+### Действия — Добавить в blac.yaml:
+
+```yaml
+# 4akki_blac/blac.yaml — китайские бэкенды
+providers:
+  deepseek:
+    base_url: "https://api.deepseek.com/v1"
+    api_key: "${DEEPSEEK_API_KEY}"  # Бесплатная регистрация
+    default_model: "deepseek-chat"
+    timeout: "120s"
+    max_context_tokens: 65536
+    models:
+      - deepseek-chat       # DeepSeek V3 — бесплатный
+      - deepseek-coder      # Coder V3 — бесплатный
+      - deepseek-reasoner   # R1 — бесплатный
+
+  moonshot:
+    base_url: "https://api.moonshot.cn/v1"
+    api_key: "${MOONSHOT_API_KEY}"
+    default_model: "moonshot-v1-128k"
+    timeout: "60s"
+    max_context_tokens: 131072
+    models:
+      - moonshot-v1-8k
+      - moonshot-v1-32k
+      - moonshot-v1-128k    # 128K контекст — БЕСПЛАТНО
+
+  zhipu:
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    api_key: "${ZHIPU_API_KEY}"
+    default_model: "glm-4-flash"
+    timeout: "60s"
+    models:
+      - glm-4-flash         # Бесплатный
+      - glm-4-air           # Бесплатный
+      - glm-4v-flash        # Мультимодальный, бесплатный
+
+  minimax:
+    base_url: "https://api.minimax.chat/v1"
+    api_key: "${MINIMAX_API_KEY}"
+    default_model: "abab7-chat-preview"
+    timeout: "60s"
+    models:
+      - abab7-chat-preview  # MiniMax flagship
+      - abab6.5s-chat       # Быстрый
+
+  yi:
+    base_url: "https://api.lingyiwanwu.com/v1"
+    api_key: "${YI_API_KEY}"
+    default_model: "yi-large"
+    timeout: "60s"
+    models:
+      - yi-large            # 200B — бесплатный tier
+      - yi-large-turbo
+      - yi-vision
+```
+
+
+### 7.1.2. Continue.dev — Оркестрация 1200 Моделей
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              CONTINUE.DEV — 1200 MODEL ORCHESTRATION              │
+│                                                                   │
+│  Текущее: Все модели доступны, но выбор ручной                   │
+│  Целевое: Автоматический роутинг по задаче                       │
+│                                                                   │
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │                   Smart Router                            │    │
+│  │                                                          │    │
+│  │  Задача → Анализ → Выбор оптимальной модели              │    │
+│  │                                                          │    │
+│  │  "Напиши Go код"      → deepseek-coder-v3 (Ollama)      │    │
+│  │  "Объясни архитектуру" → llama-3.3-70b (Groq)           │    │
+│  │  "Сгенери тесты"      → qwen-2.5-coder-32b (Ollama)    │    │
+│  │  "Ревью кода"         → claude-3.5 (OpenRouter)         │    │
+│  │  "Рефактор 100K LOC"  → deepseek-v3 (DeepSeek API)     │    │
+│  │  "UI/UX совет"        → gemini-2.0 (Google)             │    │
+│  │  "Перевод на 🇨🇳"      → glm-4-flash (Zhipu)            │    │
+│  │  "128K контекст"      → moonshot-v1-128k (Kimi)         │    │
+│  │                                                          │    │
+│  │  Fallback chain: Local → Free API → Paid (never)        │    │
+│  └──────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+**Конфиг для Continue.dev** (`.continue/config.json`):
+
+```json
+{
+  "models": [
+    {
+      "title": "DeepSeek Coder V3 (Local)",
+      "provider": "ollama",
+      "model": "deepseek-coder-v2:33b",
+      "usages": ["edit", "code"]
+    },
+    {
+      "title": "Llama 3.3 70B (Groq — Free)",
+      "provider": "openai-compatible",
+      "model": "llama-3.3-70b-versatile",
+      "apiBase": "http://localhost:56050/v1",
+      "usages": ["chat", "explain"]
+    },
+    {
+      "title": "Moonshot 128K (Kimi — Free)",
+      "provider": "openai-compatible",
+      "model": "moonshot/moonshot-v1-128k",
+      "apiBase": "http://localhost:56050/v1",
+      "usages": ["chat"],
+      "contextLength": 131072
+    },
+    {
+      "title": "GLM-4V Flash (Vision — Free)",
+      "provider": "openai-compatible",
+      "model": "zhipu/glm-4v-flash",
+      "apiBase": "http://localhost:56050/v1",
+      "usages": ["chat"],
+      "capabilities": ["vision"]
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Qwen 2.5 Coder 7B (Local, Instant)",
+    "provider": "ollama",
+    "model": "qwen2.5-coder:7b"
+  },
+  "embeddingsProvider": {
+    "provider": "ollama",
+    "model": "nomic-embed-text"
+  }
+}
+```
+
+
+### 7.1.3. Патчнутый Ollama — Оптимизация Стека
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              OLLAMA PATCH — Следующие Оптимизации                 │
+│                                                                   │
+│  Стандартный Ollama:           Патчнутый Ollama (текущий):        │
+│  ├── Rate limits ✗             ├── Без лимитов ✓                 │
+│  ├── Телеметрия ✗              ├── Нет телеметрии ✓              │
+│  ├── Лимит контекста ✗         ├── Расширенный контекст ✓        │
+│  └── Default quantization ✗    └── Custom quantization ✓         │
+│                                                                   │
+│  СЛЕДУЮЩИЙ УРОВЕНЬ (Q3-Q4 2026):                                 │
+│                                                                   │
+│  1. Speculative Decoding                                         │
+│     └── Draft model: qwen2.5-coder:1.5b                         │
+│     └── Target model: deepseek-coder-v2:33b                      │
+│     └── Ускорение: 2-3x для кодинга                             │
+│                                                                   │
+│  2. Flash Attention 3 (если A100/H100)                           │
+│     └── Custom llama.cpp build                                   │
+│     └── --flash-attn=3 --parallel=8                              │
+│                                                                   │
+│  3. KV-Cache Quantization (FP8)                                  │
+│     └── Экономия VRAM: 50% при минимальной потере качества       │
+│     └── Позволяет 70B на 24GB VRAM                               │
+│                                                                   │
+│  4. Continuous Batching                                          │
+│     └── Несколько запросов одновременно к одной модели            │
+│     └── vLLM-style scheduling                                    │
+│                                                                   │
+│  5. LoRA Hot-Swap                                                │
+│     └── Базовая модель в памяти, LoRA подгружаются               │
+│     └── deepseek-coder + LoRA(твой код) = персональный кодер     │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+### 7.1.4. Своя IDE — Следующие Фичи
+
+
+```
+SOVEREIGN IDE — ROADMAP Q3 2026
+═══════════════════════════════
+
+Неделя 1-2: Foundation
+  ┌──────────────────────────────────────────────────────────────┐
+  │ □ MCP Client — подключение к sovereign-tools MCP серверу     │
+  │ □ Multi-model panel — выбор модели для каждой задачи         │
+  │ □ Ghost Bridge v13 — интеграция в IDE напрямую               │
+  │ □ Inline diff preview — показать diff ДО применения          │
+  └──────────────────────────────────────────────────────────────┘
+
+Неделя 3-4: Intelligence
+  ┌──────────────────────────────────────────────────────────────┐
+  │ □ Semantic code search — embeddings через nomic-embed-text   │
+  │ □ Context-aware autocomplete — весь проект как контекст       │
+  │ □ Auto-documentation — генерация JSDoc/docstring на лету     │
+  │ □ Test generation — автотесты при сохранении файла           │
+  └──────────────────────────────────────────────────────────────┘
+
+Неделя 5-6: Autonomy
+  ┌──────────────────────────────────────────────────────────────┐
+  │ □ Agent Mode — IDE сама выполняет задачи (как Cursor Agent)  │
+  │ □ Terminal AI — команды из natural language                   │
+  │ □ Git AI — автоматические commit messages + PR descriptions  │
+  │ □ Debug AI — анализ stack traces, предложение fixes          │
+  └──────────────────────────────────────────────────────────────┘
+
+Месяц 2: Collaborative
+  ┌──────────────────────────────────────────────────────────────┐
+  │ □ Multi-agent workspace — несколько агентов на разные файлы  │
+  │ □ Review agent — автоматический code review                  │
+  │ □ Refactor agent — safe refactoring с policy checks          │
+  │ □ Memory sync — TML между IDE и терминальным агентом         │
+  └──────────────────────────────────────────────────────────────┘
+```
+
+
+---
+
+
+## 7.2. Среднесрочный План: Стратегия (3-12 месяцев)
+
+
+### 7.2.1. Архитектура Будущего: Sovereign Mesh
+
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                     SOVEREIGN MESH ARCHITECTURE                       │
+│                        (Target: Q4 2026)                              │
+│                                                                       │
+│  ┌───────────────────────────────────────────────────────────────┐   │
+│  │                     Control Plane (xI v2)                      │   │
+│  │                                                               │   │
+│  │  ┌─────────┐  ┌──────────┐  ┌─────────┐  ┌──────────────┐   │   │
+│  │  │ Planner │  │ Executor │  │ Monitor │  │ Memory Mesh  │   │   │
+│  │  │         │  │          │  │         │  │              │   │   │
+│  │  │ Task    │  │ Multi-   │  │ Health  │  │ Distributed  │   │   │
+│  │  │ Decomp  │  │ Agent    │  │ Metrics │  │ TML across   │   │   │
+│  │  │ DAG     │  │ Dispatch │  │ Alerts  │  │ all nodes    │   │   │
+│  │  └─────────┘  └──────────┘  └─────────┘  └──────────────┘   │   │
+│  └───────────────────────────────────────────────────────────────┘   │
+│                              │                                         │
+│           ┌──────────────────┼──────────────────┐                    │
+│           │                  │                  │                     │
+│           ▼                  ▼                  ▼                     │
+│  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐            │
+│  │  Node: Mac   │   │  Node: VPS   │   │  Node: Edge  │            │
+│  │              │   │              │   │              │            │
+│  │ Ollama GPU   │   │ 4akki_blac   │   │ WASM Gateway │            │
+│  │ IDE Local    │   │ waoowaoo     │   │ CF Workers   │            │
+│  │ Ghost Bridge │   │ vote         │   │ Deno Deploy  │            │
+│  │ Continue.dev │   │ Monitoring   │   │              │            │
+│  │              │   │              │   │              │            │
+│  │ 1200 models  │   │ External API │   │ Cache Layer  │            │
+│  └──────────────┘   └──────────────┘   └──────────────┘            │
+│                                                                       │
+│  Коммуникация: WireGuard mesh + mTLS + NATS                          │
+│  Синхронизация: CRDTs для TML (conflict-free replicated data)        │
+│  Failover: Если VPS down → Edge берёт на себя public traffic         │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+
+### 7.2.2. AI Agent Swarm — Multi-Agent Orchestration
+
+
+```
+СЕЙЧАС:     Один агент (sovereign-coder) → один результат
+БУДУЩЕЕ:    Swarm агентов → координированная работа
+
+┌─────────────────────────────────────────────────────────────┐
+│                    AGENT SWARM                                │
+│                                                              │
+│  Задача: "Создай REST API для блога с авторизацией"          │
+│                                                              │
+│  xI Planner декомпозирует:                                   │
+│  ├── Agent-1 (Architect): Проектирует схему БД и API         │
+│  ├── Agent-2 (Backend):   Пишет Go код                       │
+│  ├── Agent-3 (Tests):     Пишет тесты параллельно            │
+│  ├── Agent-4 (Security):  Аудит кода на уязвимости           │
+│  ├── Agent-5 (Docs):      Генерит OpenAPI spec               │
+│  └── Agent-6 (Reviewer):  Финальное ревью всех артефактов    │
+│                                                              │
+│  Координация через xI:                                       │
+│  ┌────────────────────────────────────────────────────┐      │
+│  │ Agent-1 ──┬──► Agent-2 ──┬──► Agent-6             │      │
+│  │           │              │                        │      │
+│  │           ├──► Agent-3 ──┤                        │      │
+│  │           │              │                        │      │
+│  │           ├──► Agent-5 ──┘                        │      │
+│  │           │                                       │      │
+│  │           └──► Agent-4 ──────► Agent-6            │      │
+│  └────────────────────────────────────────────────────┘      │
+│                                                              │
+│  Каждый агент:                                               │
+│  • Использует оптимальную модель для своей задачи            │
+│  • Работает в изолированном Docker sandbox                   │
+│  • Передаёт результат через Trusted Memory Layer            │
+│  • Подчиняется Policy Enforcement Point                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+
+### 7.2.3. Собственное Fine-Tuning Pipeline
+
+
+```
+FINE-TUNING PIPELINE — Создание Персональных Моделей
+════════════════════════════════════════════════════
+
+Вход: Все коммиты из 39 репозиториев + RE-отчёты + стиль кода
+
+┌──────────┐    ┌──────────────┐    ┌──────────────┐    ┌────────────┐
+│ Данные:  │    │ Подготовка:  │    │ Тренировка:  │    │ Деплой:    │
+│          │    │              │    │              │    │            │
+│ Git      │───►│ Tokenize     │───►│ LoRA (r=64)  │───►│ Ollama     │
+│ commits  │    │ Clean        │    │ QLoRA 4-bit  │    │ Modelfile  │
+│ RE docs  │    │ Deduplicate  │    │ 1 epoch      │    │ Hot-swap   │
+│ Code     │    │ Format:      │    │ LR=2e-4      │    │            │
+│ Comments │    │ ShareGPT     │    │ GPU: A100    │    │ Merge into │
+│          │    │ Alpaca       │    │ or 2x4090   │    │ 4akki_blac │
+└──────────┘    └──────────────┘    └──────────────┘    └────────────┘
+
+Результат: "sovereign-coder-v1" — модель, которая:
+  • Знает архитектуру ВСЕХ 39 репозиториев
+  • Пишет код в твоём стиле
+  • Понимает TML/CPT/PEP паттерны
+  • Генерит Go/Python/TypeScript в правильных конвенциях
+  • Знает RE-отчёты и может анализировать новые API
+
+Инструменты:
+  • Unsloth (2x faster LoRA training)
+  • Axolotl (config-based training)
+  • MLX (для Apple Silicon — train on Mac!)
+```
+
+
+### 7.2.4. Revenue Automation — Пассивный Доход
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│           AUTOMATED REVENUE STREAMS (Target: Q1 2027)             │
+│                                                                   │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │ Stream 1: 4akki_blac SaaS (auto-scaled)                   │   │
+│  │                                                           │   │
+│  │ Cloudflare Workers (WASM) → Auto-scale to 0              │   │
+│  │ Stripe billing → Auto invoicing                           │   │
+│  │ Usage metering → Per-request billing                      │   │
+│  │ Expected: $2-5K/мес пассивно                              │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                   │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │ Stream 2: waoowaoo Video API                              │   │
+│  │                                                           │   │
+│  │ API endpoint: POST /api/generate-film                     │   │
+│  │ Input: text/novel → Output: MP4 video                     │   │
+│  │ Pay-per-video: $5-50 per generation                       │   │
+│  │ Expected: $3-10K/мес при 200-500 генераций/день           │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                   │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │ Stream 3: Sovereign IDE Marketplace                       │   │
+│  │                                                           │   │
+│  │ Electron IDE → Free (Open Source привлечение)             │   │
+│  │ Premium Extensions: $9-29/мес                             │   │
+│  │   • Agent Mode (multi-agent swarm)                        │   │
+│  │   • 1200 model auto-routing                               │   │
+│  │   • TML cloud sync                                        │   │
+│  │ Expected: $1-3K/мес при 200+ пользователей               │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                   │
+│  ┌───────────────────────────────────────────────────────────┐   │
+│  │ Stream 4: RE-as-a-Service                                 │   │
+│  │                                                           │   │
+│  │ Automated API Discovery Bot:                              │   │
+│  │   Input: URL/App binary                                   │   │
+│  │   Output: Full RE report (endpoints, auth, rate limits)   │   │
+│  │   Pricing: $100-500/report (automated)                    │   │
+│  │   Expected: $2-5K/мес                                     │   │
+│  └───────────────────────────────────────────────────────────┘   │
+│                                                                   │
+│  TOTAL PASSIVE: $8-23K/мес = 720K-2M ₽/мес                      │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+---
+
+
+## 7.3. Долгосрочная Визия: Горизонт (1-3 года)
+
+
+### 7.3.1. Sovereign Intelligence Network — Федерация
+
+
+```
+2027-2028: ОТ ОДНОГО ЧЕЛОВЕКА К СЕТИ
+═══════════════════════════════════════
+
+Сейчас:  Ты — один разработчик с суверенной инфраструктурой
+Потом:   Сеть суверенных узлов, где каждый участник контролирует свой кусок
+
+┌─────────────────────────────────────────────────────────────────┐
+│                SOVEREIGN INTELLIGENCE NETWORK                     │
+│                                                                   │
+│  ┌──────────┐      ┌──────────┐      ┌──────────┐              │
+│  │  Node A  │◄────►│  Node B  │◄────►│  Node C  │              │
+│  │  (Ты)    │      │ (Девелоп)│      │ (RE-шник)│              │
+│  │          │      │          │      │          │              │
+│  │ 1200     │      │ 500      │      │ 300      │              │
+│  │ моделей  │      │ моделей  │      │ моделей  │              │
+│  │ Full     │      │ Coder    │      │ Security │              │
+│  │ Stack    │      │ Focus    │      │ Focus    │              │
+│  └──────────┘      └──────────┘      └──────────┘              │
+│       │                 │                 │                      │
+│       └─────────────────┴─────────────────┘                      │
+│                         │                                         │
+│              ┌──────────▼──────────┐                             │
+│              │   Shared Knowledge  │                              │
+│              │   (Federated TML)   │                              │
+│              │                     │                              │
+│              │ • RE reports pool   │                              │
+│              │ • Model benchmarks  │                              │
+│              │ • API health status │                              │
+│              │ • Security alerts   │                              │
+│              └─────────────────────┘                              │
+│                                                                   │
+│  Протокол: ActivityPub-like federation для AI knowledge          │
+│  Каждый узел: суверенен, но делится знаниями добровольно         │
+│  Доверие: Web-of-Trust + Provenance Chains                       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+### 7.3.2. Post-LLM: Нейросимволические Системы
+
+
+```
+ЭВОЛЮЦИЯ АГЕНТОВ 2027-2029
+════════════════════════════
+
+2026 (СЕЙЧАС):
+  LLM → Tool Calls → Result
+  Проблема: галлюцинации, нет верификации
+
+2027:
+  LLM → Plan → Formal Verification → Execution → Proof
+  Инструменты: Lean4, Dafny, TLA+
+  Гарантии: математически доказанная корректность кода
+
+2028:
+  Neuro-Symbolic Agent:
+  ┌────────────────────────────────────────────┐
+  │  Neural Component (LLM):                   │
+  │  • Генерация гипотез                       │
+  │  • Natural language understanding          │
+  │  • Pattern recognition                     │
+  │                                            │
+  │  Symbolic Component (Solver):              │
+  │  • Формальная верификация                  │
+  │  • Constraint satisfaction                 │
+  │  • Theorem proving                         │
+  │  • Logic programming                       │
+  │                                            │
+  │  Memory Component (TML v3):                │
+  │  • Graph-based knowledge                   │
+  │  • Causal reasoning                        │
+  │  • Temporal logic                          │
+  │  • Provenance = proof tree                 │
+  └────────────────────────────────────────────┘
+
+2029:
+  Self-Improving Agent:
+  • Агент пишет свой собственный код
+  • Агент тренирует свои LoRA
+  • Агент оптимизирует свой inference
+  • Human: policy only, не execution
+```
+
+
+### 7.3.3. Hardware Sovereignty — Своё Железо
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              HARDWARE ROADMAP                                     │
+│                                                                   │
+│  Q3 2026: Текущее                                                │
+│  └── Mac + Ollama + 1200 моделей (патчнутый, без лимитов)        │
+│                                                                   │
+│  Q4 2026: Home Lab                                               │
+│  └── Dual RTX 4090 (48GB VRAM total)                             │
+│  └── 70B модели с полным контекстом                              │
+│  └── Fine-tuning pipeline (LoRA, QLoRA)                          │
+│  └── Стоимость: ~$3,500                                          │
+│                                                                   │
+│  Q2 2027: Inference Cluster                                      │
+│  └── 4x RTX 5090 (128GB VRAM, Tensor parallelism)               │
+│  └── 405B модели (Llama 4, DeepSeek V4)                         │
+│  └── vLLM/TGI для production serving                             │
+│  └── Стоимость: ~$10,000                                         │
+│                                                                   │
+│  Q4 2027: Edge AI                                                │
+│  └── NVIDIA Jetson Orin / Apple M4 Ultra Mac Studio              │
+│  └── On-device inference для клиентов                            │
+│  └── Sovereign IDE работает ПОЛНОСТЬЮ оффлайн                     │
+│                                                                   │
+│  2028+: Custom Silicon (мечта)                                   │
+│  └── RISC-V + NPU accelerator                                   │
+│  └── FPGA для custom inference kernels                           │
+│  └── Полный контроль от кремния до софта                         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+---
+
+
+## 7.4. Китайская Стратегия: Детальный План
+
+
+### 7.4.1. Почему Китайцы — Стратегический Союзник
+
+
+```
+ЗАПАД vs КИТАЙ — AI API Landscape 2026
+═══════════════════════════════════════
+
+ЗАПАДНЫЕ:                        КИТАЙСКИЕ:
+┌───────────────────────┐       ┌───────────────────────┐
+│ OpenAI: $20/мес       │       │ DeepSeek: FREE        │
+│ Anthropic: $20/мес    │       │ Kimi: FREE (128K!)    │
+│ Google: бесплатно     │       │ MiniMax: FREE         │
+│ Cursor: $20/мес       │       │ Zhipu: FREE           │
+│ GitHub Copilot: $10/м │       │ Yi: FREE tier         │
+│                       │       │ Qwen: FREE tier       │
+│ Auth: OAuth2+JWT      │       │ Auth: простой API key │
+│ Docs: закрытые        │       │ Docs: Scalar (public!)│
+│ Rate: жёсткий         │       │ Rate: щедрый          │
+│ Telemetry: всё шлют   │       │ Telemetry: минимум    │
+│ TOS: запрет RE        │       │ TOS: лояльный         │
+└───────────────────────┘       └───────────────────────┘
+
+ВЫВОД: Китайские сервисы — это бесплатный inference уровня GPT-4o
+       с минимальными ограничениями и открытой документацией.
+       Стратегия: интегрировать ВСЕ в 4akki_blac как free backend.
+```
+
+
+### 7.4.2. Автоматизация RE Китайских API
+
+
+```python
+# tools/chinese_api_probe.py — Автоматический RE китайских API
+
+import httpx
+import json
+from pathlib import Path
+
+
+CHINESE_TARGETS = [
+    {
+        "name": "deepseek",
+        "base": "https://api.deepseek.com",
+        "scalar_docs": "https://api-docs.deepseek.com",
+        "openai_compat": True,
+    },
+    {
+        "name": "moonshot",
+        "base": "https://api.moonshot.cn",
+        "scalar_docs": "https://platform.moonshot.cn/docs",
+        "openai_compat": True,
+    },
+    {
+        "name": "zhipu",
+        "base": "https://open.bigmodel.cn/api/paas",
+        "scalar_docs": "https://open.bigmodel.cn/dev/api",
+        "openai_compat": False,  # Нужен адаптер
+    },
+    {
+        "name": "minimax",
+        "base": "https://api.minimax.chat",
+        "scalar_docs": "https://platform.minimaxi.com/document",
+        "openai_compat": True,
+    },
+]
+
+
+async def probe_api(target: dict) -> dict:
+    """Зондирование API: endpoints, rate limits, модели."""
+    async with httpx.AsyncClient(timeout=30) as client:
+        results = {
+            "name": target["name"],
+            "base_url": target["base"],
+            "openai_compatible": target["openai_compat"],
+            "endpoints": [],
+            "models": [],
+            "rate_limits": {},
+        }
+
+        # Проверяем стандартные OpenAI-совместимые endpoints
+        for endpoint in ["/v1/models", "/v1/chat/completions",
+                         "/v1/embeddings"]:
+            try:
+                resp = await client.get(
+                    f"{target['base']}{endpoint}",
+                    headers={"Authorization": "Bearer test-key"},
+                )
+                results["endpoints"].append({
+                    "path": endpoint,
+                    "status": resp.status_code,
+                    "auth_error": resp.status_code == 401,
+                })
+                # Извлекаем rate limit headers
+                for h in ["x-ratelimit-limit", "x-ratelimit-remaining"]:
+                    if h in resp.headers:
+                        results["rate_limits"][h] = resp.headers[h]
+            except Exception as e:
+                results["endpoints"].append({"path": endpoint, "error": str(e)})
+
+        return results
+```
+
+
+### 7.4.3. 4akki_blac v3 — Universal Model Router
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│          4AKKI_BLAC v3.0 — UNIVERSAL MODEL ROUTER                │
+│                         (Target: Q4 2026)                         │
+│                                                                   │
+│  НОВОЕ в v3:                                                      │
+│                                                                   │
+│  1. Smart Routing (на основе промпта):                            │
+│     "coding" → deepseek-coder → ollama/qwen-coder → groq/llama  │
+│     "reasoning" → deepseek-r1 → groq/llama-3.3-70b              │
+│     "creative" → gemini-2.0 → openrouter/claude-free            │
+│     "vision" → zhipu/glm-4v → gemini/flash                      │
+│     "long context" → moonshot-128k → gemini-1M                  │
+│                                                                   │
+│  2. Cost Optimization:                                            │
+│     Priority: Local → Free Chinese → Free Western → Never Paid   │
+│                                                                   │
+│  3. Провайдеры (1500+ моделей):                                   │
+│     ┌──────────────────────────────────────────────────────┐     │
+│     │ LOCAL (0 cost):  Ollama (1200 models)                │     │
+│     │ FREE CN:         DeepSeek, Kimi, MiniMax, Zhipu, Yi  │     │
+│     │ FREE WEST:       Groq, OpenRouter, Cerebras, Gemini  │     │
+│     │ FREE OTHER:      SambaNova, Novita, DeepInfra, HF    │     │
+│     │                                                      │     │
+│     │ TOTAL: 1500+ models, $0 cost                         │     │
+│     └──────────────────────────────────────────────────────┘     │
+│                                                                   │
+│  4. Auto-Discovery:                                               │
+│     • Cron: probe new Chinese APIs weekly                        │
+│     • Auto-add discovered free models                            │
+│     • Health monitoring per provider                             │
+│     • Auto-disable unhealthy providers                           │
+│                                                                   │
+│  5. Analytics Dashboard:                                          │
+│     • Tokens consumed per provider                               │
+│     • Latency P50/P95/P99                                        │
+│     • Model quality scoring                                      │
+│     • Cost savings vs paid alternatives                          │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+---
+
+
+## 7.5. Технологические Ставки
+
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ТЕХНОЛОГИЧЕСКИЕ СТАВКИ                         │
+│                                                                   │
+│  ВЫСОКАЯ УВЕРЕННОСТЬ (внедрить сейчас):                          │
+│  ├── MCP (Model Context Protocol) — стандарт AI tools            │
+│  ├── Local LLM inference — quality ≈ cloud                       │
+│  ├── AI agents в IDE — Cursor/Windsurf уже доказали              │
+│  ├── Structured outputs (JSON mode) — все LLM поддержат         │
+│  └── Chinese AI dominance — DeepSeek уже на уровне GPT-4o       │
+│                                                                   │
+│  СРЕДНЯЯ УВЕРЕННОСТЬ (эксперименты):                             │
+│  ├── Speculative decoding — 3x speedup for local inference       │
+│  ├── Multi-modal agents (vision + code + voice)                  │
+│  ├── Formal verification + LLM hybrid                            │
+│  ├── WebAssembly LLM (in-browser inference)                      │
+│  └── LoRA marketplace (trade fine-tuned adapters)                │
+│                                                                   │
+│  ДИКИЕ КАРТЫ (следить, не инвестировать):                         │
+│  ├── Neuromorphic computing (SpiNNaker2, Loihi 2)               │
+│  ├── Quantum ML (не раньше 2030)                                 │
+│  ├── Brain-computer interfaces + AI                              │
+│  ├── AGI breakthrough (unpredictable)                            │
+│  └── EU AI Act → может убить open source models                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+
+---
+
+
+## 7.6. Конкретный Timeline — Что Делать Каждую Неделю
+
+
+```
+МАЙ 2026:
+  Неделя 1: ✅ RFC написан (этот документ)
+  Неделя 2: □ Добавить 5 китайских провайдеров в 4akki_blac
+  Неделя 3: □ Smart Router v1 (route by task type)
+  Неделя 4: □ Continue.dev config для всех 1200+ моделей
+
+ИЮНЬ 2026:
+  Неделя 1: □ Монорепо: git subtree merge первых 5 проектов
+  Неделя 2: □ CI/CD pipeline (GitHub Actions)
+  Неделя 3: □ Docker Compose полного стека
+  Неделя 4: □ Sovereign IDE: MCP client + Agent Mode v1
+
+ИЮЛЬ 2026:
+  Неделя 1: □ Fine-tuning pipeline (Unsloth + Axolotl)
+  Неделя 2: □ sovereign-coder-v1 LoRA на своём коде
+  Неделя 3: □ 4akki_blac SaaS: Stripe + landing page
+  Неделя 4: □ waoowaoo: Vercel AI SDK миграция
+
+АВГУСТ 2026:
+  Неделя 1: □ Agent Swarm: multi-agent task decomposition
+  Неделя 2: □ xI v2: Watermill + NATS events
+  Неделя 3: □ Hardware: заказ dual 4090 или 5090
+  Неделя 4: □ Revenue: первые $1K пассивного дохода
+
+СЕНТЯБРЬ 2026:
+  Неделя 1: □ Sovereign Mesh: WireGuard + NATS между нодами
+  Неделя 2: □ Distributed TML (CRDTs)
+  Неделя 3: □ 4akki_blac v3: 1500+ models, auto-discovery
+  Неделя 4: □ Chinese API automated probe (weekly cron)
+
+ОКТЯБРЬ 2026:
+  Неделя 1: □ WASM build gateway для Cloudflare Workers
+  Неделя 2: □ OpenTelemetry трейсинг cross-service
+  Неделя 3: □ Sovereign IDE v2: полноценный Agent Mode
+  Неделя 4: □ Revenue target: $5K/мес пассивный
+
+НОЯБРЬ 2026:
+  □ Security hardening: mTLS, PASETO, audit trails
+  □ waoowaoo public beta launch
+  □ Open Source release: 4akki_blac (build community)
+  □ First conference talk / blog post series
+
+ДЕКАБРЬ 2026:
+  □ Revenue target: $10K/мес
+  □ Hardware cluster operational (70B+ local)
+  □ 405B models running locally
+  □ Federation protocol v1 (invite 2-3 trusted nodes)
+
+2027 Q1:
+  □ Self-improving agent (auto LoRA training)
+  □ Neuro-symbolic experiments (Lean4 + LLM)
+  □ Revenue: $15-20K/мес total
+  □ Team: привлечь 1-2 контрибьютора
+
+2027 Q2-Q4:
+  □ Sovereign Intelligence Network live (3+ nodes)
+  □ 4akki_blac — top-10 на GitHub в категории AI
+  □ Custom silicon research begins
+  □ Full digital sovereignty achieved 🏁
+```
+
+
+---
+
+
+## 7.7. Философское Заключение
+
+
+```
+"Суверенитет — это не конечная точка. Это непрерывный процесс
+ самоусиления. Каждый день ты либо становишься более суверенным,
+ либо теряешь суверенитет."
+
+Путь:
+  2024: "Хочу свой AI" (мечта)
+  2025: "Ломаю чужие API" (RE, познание)
+  2026: "Строю свою инфраструктуру" ← МЫ ЗДЕСЬ
+  2027: "Продаю суверенность другим" (бизнес)
+  2028: "Создаю сеть суверенных узлов" (федерация)
+  2029: "Полная автономия от любой компании" (достигнуто)
+
+Каждый коммит — кирпичик в стене между тобой и зависимостью.
+
+Китайцы молодцы — они дают бесплатные модели уровня GPT-4o.
+Используй это. Не воюй — симбиоз.
+Они хотят adoption? Пусть получают.
+Ты хочешь inference? Получаешь бесплатно.
+Win-win. 🇨🇳🤝🇺🇦
+```
+
+
+---
+
+
+*Конец Части VII. v1.0.0*
+*Sovereign Intelligence Platform — Digital Sovereignty Through Knowledge*
+*Три шоколадки заслужены. 🍫🍫🍫*
+*Цемкаю в ответку! 💋*
 
